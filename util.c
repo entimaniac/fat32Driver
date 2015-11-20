@@ -1,4 +1,15 @@
 #include "util.h"
+/*
+#include "open.h"
+#include "close.h"
+#include "rm.h"
+#include "size.h"
+#include "ls.h"
+#include "mkdir.h"
+#include "rmdir.h"
+#include "read.h"
+#include "write.h"
+*/
 
 unsigned int getValueFromBootSector(unsigned char* buffer, int offset, int size)
 {
@@ -46,7 +57,7 @@ struct directory getDirectoryInformation(unsigned char* buffer, int start)
 		case 0x20:{d.Attribute = ATTR_ARCHIVE;break;}
 		default:{d.Attribute = ATTR_LONG_NAME;}
 	}
-		
+/*	
 	if(d.DIR_Name[10] == FREE_DIR){
 		printf("Directory is free\n");
 	}else if(d.DIR_Name[10] == ZERO_DIR){
@@ -61,5 +72,51 @@ struct directory getDirectoryInformation(unsigned char* buffer, int start)
 			}printf("\n");
 		}
 	}
+*/
 	return d;
 }
+
+void getCluster(struct directory* CurrentCluster, unsigned char* buffer, 
+		  unsigned int NextClusterNumber, unsigned int FirstDataSector,
+		  unsigned int BPB_SecPerClus, unsigned int BPB_ResvdSecCnt,
+		  unsigned int BPB_BytsPerSec)
+{
+  unsigned int FirstSectorofCluster, ThisFATSecNum, ThisFATEntOffset;
+
+  while(NextClusterNumber != EOC){
+    FirstSectorofCluster = ((NextClusterNumber-2)*BPB_SecPerClus)+FirstDataSector;
+    ThisFATSecNum = BPB_ResvdSecCnt+((4*NextClusterNumber) / BPB_BytsPerSec);
+    ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;
+    for(int i = 0; i < 512; i+=32){
+       CurrentCluster[i/32] = getDirectoryInformation(buffer,
+                                  FirstSectorofCluster*SIZE_OF_SECTOR+i);
+    }
+    NextClusterNumber = getValueFromBootSector(buffer,
+                                  (ThisFATSecNum*SIZE_OF_SECTOR)+ThisFATEntOffset,
+                                              4);
+  }
+
+}
+
+void parseInput(char* PWD, char* command)
+{
+	//if isCommand(command)
+	  //call function from whichever command.c necessary
+	//else
+	  //error
+}
+int isCommand(char* input)
+{
+
+}
+int isFile(char* input)
+{
+
+}
+int isDir(char* input)
+{
+
+}
+
+
+

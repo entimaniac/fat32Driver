@@ -20,7 +20,6 @@ typedef enum {ATTR_READ_ONLY,
 	ATTR_LONG_NAME
 } ATTR;
 
-
 struct directory{
 	unsigned char DIR_Name[11];
 	unsigned char DIR_Attr[1];
@@ -39,9 +38,21 @@ struct directory{
 	ATTR Attribute;	
 };
 
+
 unsigned int getValueFromBootSector(unsigned char*, int, int);
 void getValueFromDirectorySector(unsigned char*, unsigned char*, int, int);
 struct directory getDirectoryInformation(unsigned char*, int);
+void getCluster(struct directory*,unsigned char*,unsigned int,unsigned int,
+			unsigned int, unsigned int, unsigned int);
+
+void parseInput(char*,char*);
+int isCommand(char*);
+int isFile(char*);
+int isDir(char*);
+
+
+
+
 
 
 #endif
