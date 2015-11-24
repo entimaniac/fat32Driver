@@ -15,10 +15,6 @@ int main()
 	char* PWD = (char*)calloc(sizeof(char),256);
 	char* input = (char*)calloc(sizeof(char),256);
 	char* command = (char*)calloc(sizeof(char),64);
-	char* arg1 = (char*)calloc(sizeof(char),64);
-	char* arg2 = (char*)calloc(sizeof(char),64);
-	char* arg3 = (char*)calloc(sizeof(char),64);
-	char* arg4 = (char*)calloc(sizeof(char),64);
 	struct directory current_dir;
 	struct directory CurrentCluster[16];
 	
@@ -56,10 +52,13 @@ int main()
 
 	strcpy(PWD,"/");	
 	while(1){		
-		//printf("%s]: ",PWD);
-		//fgets(input,256,stdin);
+		printf("%s]: ",PWD);
 		scanf("%s",command);
-		//parseInput	
+		currentClusterNumber(SET,NextClusterNumber);
+		parseInput(CurrentCluster,buffer,FirstDataSector,
+				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec,PWD,command);	
+		getCluster(CurrentCluster,buffer,NextClusterNumber,FirstDataSector,
+				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
 	}
 
 return 0;

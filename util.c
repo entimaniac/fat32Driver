@@ -1,10 +1,10 @@
 #include "util.h"
+#include "ls.h"
 /*
 #include "open.h"
 #include "close.h"
 #include "rm.h"
 #include "size.h"
-#include "ls.h"
 #include "mkdir.h"
 #include "rmdir.h"
 #include "read.h"
@@ -13,13 +13,12 @@
 
 unsigned int getValueFromBootSector(unsigned char* buffer, int offset, int size)
 {
-	unsigned val = 0;
+
+	unsigned val = 0;	
 	for(int i = offset+size-1; i >= offset; i--){
-//		printf("%02X ",buffer[i]);
 		val = val << 8;
 		val += buffer[i];
 	}
-//	printf("\n");
 	return val;
 }
 
@@ -27,14 +26,49 @@ void getValueFromDirectorySector(unsigned char* buffer, unsigned char* DIR_val, 
 {
 	for(int i = offset+size-1, j = 0; i >= offset; i--, j++){
 		DIR_val[j] = buffer[i];	
-//		printf("%02X ",DIR_val[j]);	
 	}
-//	printf("\n");
+}
+
+void getFileName(unsigned char* buffer, unsigned char* filename, int start)
+{
+	int count = 0;
+	int file_done = 0;
+
+	if(buffer[start] == 0x2E){//dot
+		while(buffer[start] != 0x20){//space
+			filename[count] = buffer[start];
+			count++;
+			start++;
+		}
+	}
+	else{
+		for(int i = start+1; i < start+10 && file_done == 0; i+=2){
+			if((int)buffer[i] >= 32){	
+				filename[count] = buffer[i];
+				count++;
+			}else{
+				file_done = 1;
+			}
+		}
+		for(int i = start+14; i < start+14+32 && file_done == 0; i+=2){
+			if((int)buffer[i] >= 32){
+				filename[count] = buffer[i];
+				count++;
+			}else{
+				file_done = 1;
+			}
+		}
+	}
+	if(count < 16){
+		filename[count] = '\0';
+	}			
 }
 
 struct directory getDirectoryInformation(unsigned char* buffer, int start)
 {
 	struct directory d;
+	int count = 0;
+	int file_done = 0;
 	getValueFromDirectorySector(buffer,d.DIR_Name,start+0,11);
 	getValueFromDirectorySector(buffer,d.DIR_Attr,start+11,1);
 	getValueFromDirectorySector(buffer,d.DIR_NTRes,start+12,1);
@@ -47,6 +81,8 @@ struct directory getDirectoryInformation(unsigned char* buffer, int start)
 	getValueFromDirectorySector(buffer,d.DIR_WrtDate,start+24,2);
 	getValueFromDirectorySector(buffer,d.DIR_FstClusLO,start+26,2);
 	getValueFromDirectorySector(buffer,d.DIR_FileSize,start+28,4);	
+	getFileName(buffer,d.filename,start);	
+	
 	int a = (int)d.DIR_Attr[0];
 	switch(a){
 		case 0x01:{d.Attribute = ATTR_READ_ONLY;break;}
@@ -57,23 +93,18 @@ struct directory getDirectoryInformation(unsigned char* buffer, int start)
 		case 0x20:{d.Attribute = ATTR_ARCHIVE;break;}
 		default:{d.Attribute = ATTR_LONG_NAME;}
 	}
-/*	
-	if(d.DIR_Name[10] == FREE_DIR){
-		printf("Directory is free\n");
-	}else if(d.DIR_Name[10] == ZERO_DIR){
-		printf("Directory contains only zeros\n");
-	}else{
-		if(d.Attribute != ATTR_LONG_NAME){
-			if(d.Attribute == ATTR_DIRECTORY){
-				printf("Directory is in use: ");
-			}else printf("File is in use: ");
-			for(int i = 10; i >= 0; i--){
-				printf("%c",d.DIR_Name[i]);
-			}printf("\n");
-		}
-	}
-*/
 	return d;
+}
+
+unsigned int currentClusterNumber(MODE mode, unsigned int num){
+	static unsigned int CCN;
+	switch(mode){
+		case GET:{return CCN;}
+		
+		case SET:{
+			CCN = num;
+		return 0;}
+	}
 }
 
 void getCluster(struct directory* CurrentCluster, unsigned char* buffer, 
@@ -83,10 +114,12 @@ void getCluster(struct directory* CurrentCluster, unsigned char* buffer,
 {
   unsigned int FirstSectorofCluster, ThisFATSecNum, ThisFATEntOffset;
 
-  while(NextClusterNumber != EOC){
+//  while(NextClusterNumber != EOC){
+
     FirstSectorofCluster = ((NextClusterNumber-2)*BPB_SecPerClus)+FirstDataSector;
     ThisFATSecNum = BPB_ResvdSecCnt+((4*NextClusterNumber) / BPB_BytsPerSec);
     ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;
+
     for(int i = 0; i < 512; i+=32){
        CurrentCluster[i/32] = getDirectoryInformation(buffer,
                                   FirstSectorofCluster*SIZE_OF_SECTOR+i);
@@ -94,28 +127,125 @@ void getCluster(struct directory* CurrentCluster, unsigned char* buffer,
     NextClusterNumber = getValueFromBootSector(buffer,
                                   (ThisFATSecNum*SIZE_OF_SECTOR)+ThisFATEntOffset,
                                               4);
-  }
-
+//  }
 }
 
-void parseInput(char* PWD, char* command)
+void removeTrailingNewline(char* s)
 {
-	//if isCommand(command)
-	  //call function from whichever command.c necessary
-	//else
-	  //error
+	char *pos;
+	if ((pos=strchr(s, '\n')) != NULL)
+	    *pos = '\0';	
 }
-int isCommand(char* input)
+
+void parseInput(struct directory* cluster, unsigned char* buffer, 
+		unsigned int FDS, unsigned int SPC, unsigned int RSC,
+		unsigned int BPS, char* PWD, char* command)
 {
+	char* args = (char*)calloc(sizeof(char),64);
+	
+	getc(stdin); //ignore space
+	fgets(args,64,stdin);
+	removeTrailingNewline(args);
+	if(isCommand(cluster,buffer,FDS,SPC,RSC,BPS,command,args)){
+	
+	}
+	else if(strcmp(command,"exit") == 0){
+		printf("Goodbye!\n");
+		exit(1);	
+	}else{
+		printf("%s is not a valid command\n",command);
+	}
 
 }
-int isFile(char* input)
+int isCommand(struct directory* cluster, unsigned char* buffer, 
+		unsigned int FDS, unsigned int SPC, unsigned int RSC,
+		unsigned int BPS, char* input, char* args)
 {
-
+	int result = isDir(cluster,args);
+	if(strcmp(input,"open") == 0){
+		return 1;
+	}else if(strcmp(input,"close") == 0){
+		return 1;
+	}else if(strcmp(input,"create") == 0){
+		return 1;
+	}else if(strcmp(input,"rm") == 0){
+		return 1;
+	}else if(strcmp(input,"size") == 0){
+		return 1;
+	}else if(strcmp(input,"cd") == 0){
+		return 1;
+	}else if(strcmp(input,"ls") == 0){
+		if(result > 0){
+			ls(buffer,args,result,FDS,SPC, RSC, BPS);
+		}
+		else if(result == -1){
+			ls(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		}
+		else 
+			printf("%s: Invalid directory\n",args);
+		return 1;
+	}else if(strcmp(input,"mkdir") == 0){
+		return 1;
+	}else if(strcmp(input,"rmdir") == 0){
+		return 1;
+	}else if(strcmp(input,"read") == 0){
+		return 1;
+	}else if(strcmp(input,"write") == 0){
+		return 1;
+	}else return 0;
 }
-int isDir(char* input)
+int isFile(struct directory* cluster, char* input)
 {
+	int val = 0;
+	for(int i = 0; i < 16; i++){
+		if(strcmp(cluster[i].filename,input) == 0){
+			if(cluster[i+1].Attribute != ATTR_DIRECTORY){
+				//matches name of file
+				val = ((int)cluster[i+1].DIR_FstClusLO[0] << 2) +
+					((int)cluster[i+1].DIR_FstClusLO[1]);
 
+				return val;
+			}else{
+				//matches name of directory
+				return val;	
+			}
+		}
+	}
+	//matches name of nothing
+	return val;
+}
+int isDir(struct directory* cluster, char* input)
+{
+	int val = 0;
+	if(strcmp(input,".") == 0){
+		return -1;
+	}else if(strcmp(input,"..") == 0){
+		if(strcmp(cluster[2].filename,input) == 0){
+			val = ((int)cluster[2].DIR_FstClusLO[0] << 2) +
+				((int)cluster[2].DIR_FstClusLO[1]);
+
+			return val;
+		}else{
+			//if referencing .. from root dir, pretend it is .
+			return -1;
+		}
+	}	
+	for(int i = 0; i < 16; i++){
+		if(strcmp(cluster[i].filename,input) == 0){
+			if(cluster[i+1].Attribute == ATTR_DIRECTORY){
+				//matches name of directory
+				val = ((int)cluster[i+1].DIR_FstClusLO[0] << 2) +
+					((int)cluster[i+1].DIR_FstClusLO[1]);
+
+				return val;
+			}else{
+				//matches name of file
+				return val;	
+			}
+		}
+	}
+	//matches name of nothing
+	return val;
 }
 
 
