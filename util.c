@@ -1,7 +1,7 @@
 #include "util.h"
 #include "ls.h"
-/*
 #include "open.h"
+/*
 #include "close.h"
 #include "rm.h"
 #include "size.h"
@@ -182,8 +182,14 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		unsigned int FDS, unsigned int SPC, unsigned int RSC,
 		unsigned int BPS, char* input, char* args)
 {
-	int result = isDir(cluster,args);
+	int dir_result = isDir(cluster,args);
+	int file_result = isFile(cluster,args);
 	if(strcmp(input,"open") == 0){
+		char* mode = calloc(sizeof(char),2);
+		char* ptr  = calloc(sizeof(char),64);	
+		ptr = strtok(args," ");
+		mode = strtok(NULL," ");
+		open(args,mode);
 		return 1;
 	}else if(strcmp(input,"close") == 0){
 		return 1;
@@ -194,23 +200,24 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 	}else if(strcmp(input,"size") == 0){
 		return 1;
 	}else if(strcmp(input,"cd") == 0){
-		if(result > 0){
-			currentClusterNumber(SET,result);
+		if(dir_result > 0){
+			currentClusterNumber(SET,dir_result);
 			return 2;
-		}else if(result == -1){ //current dir
+		}else if(dir_result == -1){ //current dir
 			//dont change currentClusterNumber	
-		}else if(result == -2){
-			//cd(buffer,args,result,FDS,SPC,RSC,BPS);
+		}else if(dir_result == -2){
+//NEED to implement cd ..		
+//cd(buffer,args,result,FDS,SPC,RSC,BPS);
 			//return 3;	
 		}else{
 			printf("%s: Invalid directory\n",args);
 		}
 		return 1;
 	}else if(strcmp(input,"ls") == 0){
-		if(result > 0){
-			ls(buffer,args,result,FDS,SPC, RSC, BPS);
+		if(dir_result > 0){
+			ls(buffer,args,dir_result,FDS,SPC, RSC, BPS);
 		}
-		else if(result < 0){
+		else if(dir_result < 0){
 			ls(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
 		}
 		else 
