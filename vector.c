@@ -63,6 +63,26 @@ int vector_get_size(Vector *vector)
 	return vector->size;
 }
 
+void vector_remove(Vector *vector, char* value)
+{
+	int i, j;
+	int flag = 0;
+	for(i = 0; i < vector->size; i++){
+		if(strcmp(vector->data[i],value) == 0){
+			flag = 1;
+			break;
+		}
+	}
+	if(flag == 1){
+		for(j = i; i < vector->size-1; i++){
+			strcpy(vector->data[i],vector->data[i+1]);
+			strcpy(vector->data_mode[i],vector->data_mode[i+1]);
+		}
+		vector->size--;
+		vector->capacity = vector->size;
+		vector->data = realloc(vector->data, sizeof(char**) * vector->capacity);
+	}
+}
 void vector_free(Vector *vector) {
   for(int i = 0; i < vector->size; i++){
     free(vector->data[i]);

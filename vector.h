@@ -23,6 +23,7 @@ char* vector_get(Vector *vector, int index);
 void vector_set(Vector *vector, int index, char* value);
 void vector_double_capacity_if_full(Vector *vector);
 int vector_get_size(Vector *vector);
+void vector_remove(Vector *vector, char* value);
 void vector_free(Vector *vector);
 
 #endif

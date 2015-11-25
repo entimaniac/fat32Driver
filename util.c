@@ -189,9 +189,16 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		char* ptr  = calloc(sizeof(char),64);	
 		ptr = strtok(args," ");
 		mode = strtok(NULL," ");
-		open(args,mode);
+		if(isFile(cluster,ptr)){
+			open(args,mode);
+		}else{
+			printf("Error: File does not exist!\n");	
+		}
+		dump();
 		return 1;
 	}else if(strcmp(input,"close") == 0){
+		close(args);
+		dump();
 		return 1;
 	}else if(strcmp(input,"create") == 0){
 		return 1;
