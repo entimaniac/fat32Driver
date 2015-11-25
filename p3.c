@@ -51,14 +51,16 @@ int main()
 		     BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);		
 
 	strcpy(PWD,"/");	
+//	presentWorkingDirectory(ADD,"/");
 	while(1){		
+		presentWorkingDirectory(GET,PWD);
 		printf("%s]: ",PWD);
 		scanf("%s",command);
 		currentClusterNumber(SET,NextClusterNumber);
-		parseInput(CurrentCluster,buffer,FirstDataSector,
-				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec,PWD,command);	
+		NextClusterNumber = parseInput(CurrentCluster,buffer,FirstDataSector,
+				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec,PWD,command);
 		getCluster(CurrentCluster,buffer,NextClusterNumber,FirstDataSector,
-				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
+			BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
 	}
 
 return 0;

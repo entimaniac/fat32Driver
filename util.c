@@ -107,6 +107,21 @@ unsigned int currentClusterNumber(MODE mode, unsigned int num){
 	}
 }
 
+void presentWorkingDirectory(MODE mode, char* dir){
+	static unsigned char PWD[256] = "";
+	switch(mode){
+		case GET:{
+			strncpy(dir,PWD,strlen(PWD));
+			break;}
+		case ADD:{
+			strncat(PWD,"/",1);
+			strncat(PWD,dir,strlen(dir));
+			break;}
+		case SUB:{
+			strncpy(PWD,PWD,strlen(PWD)-strlen(dir)-1);
+			break;}
+	}
+}
 void getCluster(struct directory* CurrentCluster, unsigned char* buffer, 
 		  unsigned int NextClusterNumber, unsigned int FirstDataSector,
 		  unsigned int BPB_SecPerClus, unsigned int BPB_ResvdSecCnt,
@@ -137,24 +152,30 @@ void removeTrailingNewline(char* s)
 	    *pos = '\0';	
 }
 
-void parseInput(struct directory* cluster, unsigned char* buffer, 
+unsigned int parseInput(struct directory* cluster, unsigned char* buffer, 
 		unsigned int FDS, unsigned int SPC, unsigned int RSC,
 		unsigned int BPS, char* PWD, char* command)
 {
 	char* args = (char*)calloc(sizeof(char),64);
-	
+	int return_val;	
+
 	getc(stdin); //ignore space
 	fgets(args,64,stdin);
 	removeTrailingNewline(args);
-	if(isCommand(cluster,buffer,FDS,SPC,RSC,BPS,command,args)){
-	
-	}
-	else if(strcmp(command,"exit") == 0){
-		printf("Goodbye!\n");
-		exit(1);	
+	return_val = isCommand(cluster,buffer,FDS,SPC,RSC,BPS,command,args);
+	if(return_val){
+		switch(return_val){
+			case 2:{
+				presentWorkingDirectory(ADD,args);
+				break;}
+			case 3:{
+				presentWorkingDirectory(SUB,"");
+				break;}
+		}
 	}else{
 		printf("%s is not a valid command\n",command);
 	}
+	return currentClusterNumber(GET,0);
 
 }
 int isCommand(struct directory* cluster, unsigned char* buffer, 
@@ -173,12 +194,23 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 	}else if(strcmp(input,"size") == 0){
 		return 1;
 	}else if(strcmp(input,"cd") == 0){
+		if(result > 0){
+			currentClusterNumber(SET,result);
+			return 2;
+		}else if(result == -1){ //current dir
+			//dont change currentClusterNumber	
+		}else if(result == -2){
+			//cd(buffer,args,result,FDS,SPC,RSC,BPS);
+			//return 3;	
+		}else{
+			printf("%s: Invalid directory\n",args);
+		}
 		return 1;
 	}else if(strcmp(input,"ls") == 0){
 		if(result > 0){
 			ls(buffer,args,result,FDS,SPC, RSC, BPS);
 		}
-		else if(result == -1){
+		else if(result < 0){
 			ls(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
 		}
 		else 
@@ -192,6 +224,9 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		return 1;
 	}else if(strcmp(input,"write") == 0){
 		return 1;
+	}else if(strcmp(input,"exit") == 0){
+		printf("Goodbye!\n");
+		exit(1);
 	}else return 0;
 }
 int isFile(struct directory* cluster, char* input)
@@ -227,7 +262,7 @@ int isDir(struct directory* cluster, char* input)
 			return val;
 		}else{
 			//if referencing .. from root dir, pretend it is .
-			return -1;
+			return -2;
 		}
 	}	
 	for(int i = 0; i < 16; i++){

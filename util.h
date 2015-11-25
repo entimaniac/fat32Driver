@@ -21,7 +21,7 @@ typedef enum {ATTR_READ_ONLY,
 	ATTR_LONG_NAME
 } ATTR;
 typedef enum{
-	GET,SET
+	GET,SET,ADD,SUB
 } MODE;
 
 struct directory{
@@ -47,12 +47,13 @@ void getValueFromDirectorySector(unsigned char*, unsigned char*, int, int);
 void getFileName(unsigned char*,unsigned char*,int);
 struct directory getDirectoryInformation(unsigned char*, int);
 unsigned int currentClusterNumber(MODE,unsigned int);
+void presentWorkingDirectory(MODE,char*);
 void getCluster(struct directory*,unsigned char*,unsigned int,unsigned int,
 			unsigned int, unsigned int, unsigned int);
 
 void removeTrailingNewline(char*);
 
-void parseInput(struct directory*,unsigned char*,unsigned int,unsigned int,
+unsigned int parseInput(struct directory*,unsigned char*,unsigned int,unsigned int,
 			unsigned int,unsigned int,char*,char*);
 int isCommand(struct directory*,unsigned char*,unsigned int,unsigned int,
 			unsigned int, unsigned int, char*,char*);
