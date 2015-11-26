@@ -50,8 +50,6 @@ int main()
 	getCluster(CurrentCluster,buffer,NextClusterNumber,FirstDataSector,
 		     BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);		
 
-	strcpy(PWD,"/");	
-//	presentWorkingDirectory(ADD,"/");
 	while(1){		
 		presentWorkingDirectory(GET,PWD);
 		printf("%s]: ",PWD);
@@ -59,6 +57,7 @@ int main()
 		currentClusterNumber(SET,NextClusterNumber);
 		NextClusterNumber = parseInput(CurrentCluster,buffer,FirstDataSector,
 				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec,PWD,command);
+		if(NextClusterNumber == 0) NextClusterNumber = BPB_RootClus;
 		getCluster(CurrentCluster,buffer,NextClusterNumber,FirstDataSector,
 			BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
 	}

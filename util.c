@@ -1,6 +1,7 @@
 #include "util.h"
 #include "ls.h"
 #include "open.h"
+#include "cd.h"
 /*
 #include "close.h"
 #include "rm.h"
@@ -97,7 +98,7 @@ struct directory getDirectoryInformation(unsigned char* buffer, int start)
 }
 
 unsigned int currentClusterNumber(MODE mode, unsigned int num){
-	static unsigned int CCN;
+	static int CCN;
 	switch(mode){
 		case GET:{return CCN;}
 		
@@ -108,17 +109,32 @@ unsigned int currentClusterNumber(MODE mode, unsigned int num){
 }
 
 void presentWorkingDirectory(MODE mode, char* dir){
-	static unsigned char PWD[256] = "";
+	static unsigned char PWD[256] = "/";
+	static unsigned int size = 1;
 	switch(mode){
 		case GET:{
-			strncpy(dir,PWD,strlen(PWD));
+			strcpy(dir,PWD);
 			break;}
 		case ADD:{
-			strncat(PWD,"/",1);
-			strncat(PWD,dir,strlen(dir));
+			if(size != 1) strncat(PWD,"/",1);
+			if(strlen(dir) > 0){
+				strncat(PWD,dir,strlen(dir));
+				size+=(1+strlen(dir));
+			}
 			break;}
 		case SUB:{
-			strncpy(PWD,PWD,strlen(PWD)-strlen(dir)-1);
+			for(int i = size-1; i >= 0;i--){
+				if(PWD[i] == '/'){
+					if(i != 0){
+						PWD[i] = '\0';
+					}else 
+						PWD[1] = '\0';					
+					break;
+				}else{
+					PWD[i] = (char)0;
+					size--;	
+				}
+			}
 			break;}
 	}
 }
@@ -128,8 +144,6 @@ void getCluster(struct directory* CurrentCluster, unsigned char* buffer,
 		  unsigned int BPB_BytsPerSec)
 {
   unsigned int FirstSectorofCluster, ThisFATSecNum, ThisFATEntOffset;
-
-//  while(NextClusterNumber != EOC){
 
     FirstSectorofCluster = ((NextClusterNumber-2)*BPB_SecPerClus)+FirstDataSector;
     ThisFATSecNum = BPB_ResvdSecCnt+((4*NextClusterNumber) / BPB_BytsPerSec);
@@ -142,7 +156,6 @@ void getCluster(struct directory* CurrentCluster, unsigned char* buffer,
     NextClusterNumber = getValueFromBootSector(buffer,
                                   (ThisFATSecNum*SIZE_OF_SECTOR)+ThisFATEntOffset,
                                               4);
-//  }
 }
 
 void removeTrailingNewline(char* s)
@@ -184,6 +197,7 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 {
 	int dir_result = isDir(cluster,args);
 	int file_result = isFile(cluster,args);
+	int r;
 	if(strcmp(input,"open") == 0){
 		char* mode = calloc(sizeof(char),2);
 		char* ptr  = calloc(sizeof(char),64);	
@@ -194,11 +208,9 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		}else{
 			printf("Error: File does not exist!\n");	
 		}
-		dump();
 		return 1;
 	}else if(strcmp(input,"close") == 0){
 		close(args);
-		dump();
 		return 1;
 	}else if(strcmp(input,"create") == 0){
 		return 1;
@@ -207,17 +219,23 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 	}else if(strcmp(input,"size") == 0){
 		return 1;
 	}else if(strcmp(input,"cd") == 0){
-		if(dir_result > 0){
-			currentClusterNumber(SET,dir_result);
-			return 2;
-		}else if(dir_result == -1){ //current dir
+		if(dir_result == -1){ //current dir
 			//dont change currentClusterNumber	
 		}else if(dir_result == -2){
-//NEED to implement cd ..		
-//cd(buffer,args,result,FDS,SPC,RSC,BPS);
-			//return 3;	
+			currentClusterNumber(SET,
+				cd_back(buffer,
+					currentClusterNumber(GET,0),
+					FDS,SPC,RSC,BPS)	
+			);
+			return 3;		
 		}else{
-			printf("%s: Invalid directory\n",args);
+			r = cd(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+			if(r > 0){
+				currentClusterNumber(SET,r);
+				return 2;
+			}else{
+				printf("%s: Invalid directory\n",args);
+			}
 		}
 		return 1;
 	}else if(strcmp(input,"ls") == 0){
