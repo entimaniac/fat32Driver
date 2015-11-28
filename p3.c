@@ -47,14 +47,14 @@ int main()
 	//READ IN THE ROOT DIRECTORY
 	NextClusterNumber = BPB_RootClus;
 	FirstDataSector = BPB_ResvdSecCnt+(BPB_NumFATs*FATSz)+RootDirSectors;
-	getCluster(CurrentCluster,buffer,NextClusterNumber,FirstDataSector,
+	getCluster(CurrentCluster,buffer,BPB_RootClus,FirstDataSector,
 		     BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);		
 
 	while(1){		
 		presentWorkingDirectory(GET,PWD);
+		currentClusterNumber(SET,NextClusterNumber);
 		printf("%s]: ",PWD);
 		scanf("%s",command);
-		currentClusterNumber(SET,NextClusterNumber);
 		NextClusterNumber = parseInput(CurrentCluster,buffer,FirstDataSector,
 				BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec,PWD,command);
 		if(NextClusterNumber == 0) NextClusterNumber = BPB_RootClus;

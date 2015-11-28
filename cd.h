@@ -11,7 +11,6 @@ int cd(unsigned char* buffer, char* dir, unsigned int NextClusterNumber,
 
 	while(NextClusterNumber != EOC && NextClusterNumber != EOC2){
 		FirstSectorofCluster = ((NextClusterNumber-2)*BPB_SecPerClus)+FirstDataSector;
-		
 		ThisFATSecNum = BPB_ResvdSecCnt + ((4*NextClusterNumber) / BPB_BytsPerSec);
 		ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;		
 
@@ -21,13 +20,13 @@ int cd(unsigned char* buffer, char* dir, unsigned int NextClusterNumber,
 						FirstSectorofCluster*SIZE_OF_SECTOR+i);	
 			if(strcmp(cluster[i/32].filename,dir) == 0)
 			{
+				cluster[i/32+1] = getDirectoryInformation(buffer,
+						     FirstSectorofCluster*SIZE_OF_SECTOR+i+32);
 				if(cluster[i/32].Attribute == ATTR_DIRECTORY ||
-				   cluster[(i/32)+1].Attribute == ATTR_DIRECTORY){
-					i+=32;
-					cluster[i/32] = getDirectoryInformation(buffer,
-							     FirstSectorofCluster*SIZE_OF_SECTOR+i);
-					val = ((int)cluster[i/32].DIR_FstClusLO[0] << 2) +
-						((int)cluster[i/32].DIR_FstClusLO[1]);
+				   cluster[(i/32)+1].Attribute == ATTR_DIRECTORY)
+				{
+					val = ((int)cluster[i/32+1].DIR_FstClusLO[0] << 2) +
+						((int)cluster[i/32+1].DIR_FstClusLO[1]);
 					return val;
 				}
 			}	
