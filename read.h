@@ -21,11 +21,15 @@ int read_file(unsigned char* buffer, int start, int num_bytes, unsigned int size
 		ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;		
 
 		int val = 0;
-		for(int i = start; i < size && total_gotten <= num_bytes/*start+num_bytes*/; i++){
-			temp[0] = buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i];
+		for(int i = start; i < start+size; i++){
+			temp[0] = buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i];	
 			strncat(output,temp,1);
 			bytes_gotten++;
 			total_gotten++;
+			if(total_gotten == num_bytes){
+				printf("%s\n",output);
+				return 1;
+			}
 		}
 
 		n = (ThisFATSecNum*SIZE_OF_SECTOR)+ThisFATEntOffset;
@@ -39,8 +43,7 @@ int read_file(unsigned char* buffer, int start, int num_bytes, unsigned int size
 		bytes_gotten = 0;
 //		printf("New NextClusterNumber is %d or 0x%X\n\n",NextClusterNumber,NextClusterNumber);
 	}
-	printf("%s\n",output);
-	return 1;
+	return 0;
 	//end of function
 }
 
