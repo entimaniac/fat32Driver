@@ -39,6 +39,14 @@ char* vector_get(Vector *vector, int index) {
   return vector->data[index];
 }
 
+char* vector_get_mode(Vector *vector, int index){
+  if (index >= vector->size || index < 0) {
+    printf("Index %d out of bounds for vector of size %d\n", index, vector->size);
+    exit(1);
+  }
+  return vector->data_mode[index];
+}
+
 void vector_set(Vector *vector, int index, char* value) {
   // zero fill the vector up to the desired index
   while (index >= vector->size) {

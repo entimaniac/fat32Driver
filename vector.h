@@ -20,6 +20,7 @@ typedef struct {
 void vector_init(Vector *vector);
 void vector_append(Vector *vector, char* value, char* mode);
 char* vector_get(Vector *vector, int index);
+char* vector_get_mode(Vector *vector, int index);
 void vector_set(Vector *vector, int index, char* value);
 void vector_double_capacity_if_full(Vector *vector);
 int vector_get_size(Vector *vector);

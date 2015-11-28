@@ -2,13 +2,13 @@
 #include "ls.h"
 #include "open.h"
 #include "cd.h"
+#include "read.h"
 /*
 #include "close.h"
 #include "rm.h"
 #include "size.h"
 #include "mkdir.h"
 #include "rmdir.h"
-#include "read.h"
 #include "write.h"
 */
 
@@ -208,6 +208,7 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		}else{
 			printf("Error: File does not exist!\n");	
 		}
+		//free?
 		return 1;
 	}else if(strcmp(input,"close") == 0){
 		close(args);
@@ -253,6 +254,26 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 	}else if(strcmp(input,"rmdir") == 0){
 		return 1;
 	}else if(strcmp(input,"read") == 0){
+		char* file = calloc(sizeof(char),64);
+		long int start, num_bytes;
+		char *pEnd;
+		char *temp1 = calloc(sizeof(char),8);
+		char *temp2 = calloc(sizeof(char),8);
+		file = strtok(args," ");
+		r = fileModeIsReadable(file);
+		if(r == 1){
+			temp1 = strtok(NULL," ");
+			start = strtol(temp1,&pEnd,10);
+			temp2 = strtok(NULL," ");
+			num_bytes = strtol(temp2,&pEnd,10);
+			if(start >= SIZE_OF_SECTOR){
+				printf("Error: attempt to read beyond EoF\n");	
+			}else{
+				read(buffer,file,start,num_bytes,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+			}
+		}else{
+			printf("Error: file is not open for writing!\n");
+		}
 		return 1;
 	}else if(strcmp(input,"write") == 0){
 		return 1;

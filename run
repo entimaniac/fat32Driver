@@ -1,0 +1,6 @@
+gcc -o exec p3.c util.c vector.c -std=c99
+if [ $? -eq 0 ]; then
+    ./exec
+else
+    echo FAILED
+fi

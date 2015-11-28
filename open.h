@@ -41,7 +41,44 @@ void close(char* filename)
 	printf("Error: file not open\n");
 }
 
-void dump()
+int fileModeIsReadable(char *filename)
+{
+	printf("fileModeIsReadable => %s\n",filename);
+	char *mode = calloc(sizeof(char),2);
+	for(int i = 0; i < vector_get_size(&open_file_table); i++){
+		if(strcmp(filename,vector_get(&open_file_table,i)) == 0){
+			mode = vector_get_mode(&open_file_table,i);
+			if(strcmp(mode,"r") == 0 || strcmp(mode,"rw") == 0 ||
+			   strcmp(mode,"wr") == 0){
+				return 1;
+			}
+			else{
+				return 0;
+			}
+		}
+	}
+	return 0;
+}
+
+int fileModeIsWriteable(char * filename)
+{
+	char *mode = calloc(sizeof(char),2);
+	for(int i = 0; i < vector_get_size(&open_file_table); i++){
+		if(strcmp(filename,vector_get(&open_file_table,i)) == 0){
+			mode = vector_get_mode(&open_file_table,i);
+			if(strcmp(mode,"w") == 0 || strcmp(mode,"rw") == 0 ||
+			   strcmp(mode,"wr") == 0){
+				return 1;
+			}
+			else{
+				return 0;
+			}
+		}
+	}	
+	return 0;
+}
+
+void dump_open_file_table()
 {
 	for(int i = 0; i < vector_get_size(&open_file_table); i++){
 		printf("%s, ",vector_get(&open_file_table,i));
