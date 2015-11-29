@@ -92,8 +92,8 @@ void write(unsigned char* buffer, char* dir, int start, int num_bytes, unsigned 
 				cluster[(i/32)+1].DIR_FileSize[3] = num_bytes;
 
 				//printf("%X\n", (int)cluster[(i/32)+1].DIR_FileSize[2] *16*16); 
-				printf("%X\n", (int)cluster[(i/32)+1].DIR_FileSize[3] );
-				printf("file size = 0x%08X\n",size);
+				//printf("%X\n", (int)cluster[(i/32)+1].DIR_FileSize[3] );
+				//printf("file size = 0x%08X\n",size);
 
 				return_val = write_file(buffer,start,num_bytes,string,size,num,FirstDataSector,
 						BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
