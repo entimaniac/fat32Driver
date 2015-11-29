@@ -1,0 +1,91 @@
+Project 3 Report
+
+============================
+Problem statement:
+============================
+For this project, you will design and implement a simple, user-space, shell-like
+utility that is capable of interpreting a FAT32 file system image. The program
+must understand the basic commands to manipulate the given file system image. 
+The utility must not corrupt the file system image and should be robust. You may
+not reuse kernel file system code, and you may not copy code from other file
+system utilities (or from anywhere else over the internet, to be precise).
+
+============================
+Steps taken to solve problem
+============================
+James began work on the project almost immediately. He then caught the rest of
+group up to what he had accomplished. He explained what functions needed to be
+completed and ideas for accomplishing them. The remaining members were then able
+contribute to the project and wrap up the remaining work.
+
+============================
+Assumptions
+============================
+
+
+============================
+System Calls
+============================
+
+
+============================
+Problems
+============================
+
+
+============================
+Known Bugs
+============================
+
+
+============================
+Division of Labor
+============================
+James:
+///*** functions ***///
+///*** stuff ***///
+
+Stefan:
+///*** functions ***///
+///*** stuff ***///
+
+Jesse:
+///*** functions ***///
+///*** stuff ***///
+
+============================
+Slack Day Used
+============================
+
+
+============================
+Log
+============================
+Sun, November 29: 
+	Stefan finishes size function; begins write functionality. 
+	Jesse shares documentation.
+
+Sat, November 28: 
+	James adds read functionality and fixes bugs.
+	Jesse creates documentation.
+
+Fri, November 27: 
+	Stefan creates makefile; begins working on size function.
+
+Wed, November 25: 
+	James adds cd functionality.
+
+Tue, November 24: 
+	James corrects some functions.
+
+Fri, November 20: 
+	James adds more base functionality.
+
+Wed, November 18: 
+	James pushes initial git commit on github.
+
+Mon, November 2: 
+	James begins work on project.
+
+Fri, October 30: 
+	Project 3 assigned.
