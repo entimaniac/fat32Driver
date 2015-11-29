@@ -12,6 +12,27 @@
 #include "write.h"
 */
 
+/******************************************************************************/
+/*                      DEFINED CONSTANTS */
+/******************************************************************************/
+
+/* 
+These are used for checking the number of paramters needed for each function 
+call. For example, open needs 2 arguments: name and mode. 
+*/
+#define OPEN_ARG_NUM 2
+#define	CLOSE_ARG_NUM 1
+#define	CREATE_ARG_NUM 1
+#define RM_ARG_NUM 1
+#define SIZE_ARG_NUM 1
+#define CD_ARG_NUM 1
+#define LS_ARG_NUM 1
+#define MKDIR_ARG_NUM 1
+#define RMDIR_ARG_NUM 1
+#define READ_ARG_NUM 3
+#define WRITE_ARG_NUM 4
+
+
 unsigned int getValueFromBootSector(unsigned char* buffer, int offset, int size)
 {
 
@@ -191,35 +212,94 @@ unsigned int parseInput(struct directory* cluster, unsigned char* buffer,
 	return currentClusterNumber(GET,0);
 
 }
-int isCommand(struct directory* cluster, unsigned char* buffer, 
+
+int isCommand( struct directory* cluster, unsigned char* buffer, 
 		unsigned int FDS, unsigned int SPC, unsigned int RSC,
-		unsigned int BPS, char* input, char* args)
+		unsigned int BPS, char* input, char* args )
 {
-	int dir_result = isDir(cluster,args);
-	int file_result = isFile(cluster,args);
+
+	/* Make a copy of args; iterate through it with strtok; count arguments */
+	int argumentCount = 0;
+	char * tempArgs = malloc( 1 + strlen ( args ));
+    strcpy( tempArgs, args );
+    for( tempArgs = strtok( tempArgs, " " ); tempArgs;
+        tempArgs = strtok( NULL, " " )) {
+			argumentCount++;   
+    }
+			printf( "Number of args: %d\n", argumentCount );	
+
+	int dir_result = isDir( cluster, args );
+	int file_result = isFile( cluster, args );
 	int r;
-	if(strcmp(input,"open") == 0){
-		char* mode = calloc(sizeof(char),2);
-		char* ptr  = calloc(sizeof(char),64);	
-		ptr = strtok(args," ");
-		mode = strtok(NULL," ");
-		if(isFile(cluster,ptr)){
-			open(args,mode);
-		}else{
-			printf("Error: File does not exist!\n");	
+
+	/* OPEN */
+	if( strcmp( input, "open" ) == 0 ){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, OPEN_ARG_NUM ))
+			return 1;
+
+		char * mode = calloc( sizeof( char ), 2 );
+		char * ptr  = calloc( sizeof( char ), 64 );	
+		ptr = strtok( args, " " );
+		mode = strtok( NULL, " " );
+
+		if( isFile( cluster, ptr )){
+			open( args, mode );
+		} else{
+			printf( "Error: File does not exist!\n" );	
 		}
 		//free?
 		return 1;
-	}else if(strcmp(input,"close") == 0){
+
+	}
+
+	/* CLOSE */
+	else if(strcmp(input,"close") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, CLOSE_ARG_NUM ))
+			return 1;
+
 		close(args);
 		return 1;
-	}else if(strcmp(input,"create") == 0){
+	}
+	/* CREATE */
+	else if(strcmp(input,"create") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, CREATE_ARG_NUM ))
+			return 1;
+
 		return 1;
-	}else if(strcmp(input,"rm") == 0){
+	}
+	/* RM */
+	else if(strcmp(input,"rm") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, RM_ARG_NUM ))
+			return 1;
+
 		return 1;
-	}else if(strcmp(input,"size") == 0){
+	}
+	/* SIZE */
+	else if(strcmp(input,"size") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, SIZE_ARG_NUM ))
+			return 1;
+
+		// call size:
+
 		return 1;
-	}else if(strcmp(input,"cd") == 0){
+	}
+	/* CD */
+	else if(strcmp(input,"cd") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, CD_ARG_NUM ))
+			return 1;
+
 		if(dir_result == -1){ //current dir
 			//dont change currentClusterNumber	
 		}else if(dir_result == -2){
@@ -239,7 +319,14 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 			}
 		}
 		return 1;
-	}else if(strcmp(input,"ls") == 0){
+	}
+	/* LS */
+	else if(strcmp(input,"ls") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, LS_ARG_NUM ))
+			return 1;
+
 		if(dir_result > 0){
 			ls(buffer,args,dir_result,FDS,SPC, RSC, BPS);
 		}
@@ -249,11 +336,32 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 		else 
 			printf("%s: Invalid directory\n",args);
 		return 1;
-	}else if(strcmp(input,"mkdir") == 0){
+	}
+	/* MKDIR */
+	else if(strcmp(input,"mkdir") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, MKDIR_ARG_NUM ))
+			return 1;
+
 		return 1;
-	}else if(strcmp(input,"rmdir") == 0){
+	}
+	/* RMDIR */
+	else if(strcmp(input,"rmdir") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, RMDIR_ARG_NUM ))
+			return 1;
+
 		return 1;
-	}else if(strcmp(input,"read") == 0){
+	}
+	/* READ */
+	else if(strcmp(input,"read") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, READ_ARG_NUM ))
+			return 1;
+
 		char* file = calloc(sizeof(char),64);
 		long int start, num_bytes;
 		char *pEnd;
@@ -267,21 +375,31 @@ int isCommand(struct directory* cluster, unsigned char* buffer,
 			temp2 = strtok(NULL," ");
 			num_bytes = strtol(temp2,&pEnd,10);
 			if(start >= SIZE_OF_SECTOR){
-				printf("Error: attempt to read beyond EoF\n");	
+				printf( "Error: attempt to read beyond EoF\n" );	
 			}else{
-				read(buffer,file,start,num_bytes,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+				read( buffer, file, start, num_bytes, currentClusterNumber( GET, 0 ), FDS, SPC, RSC, BPS );
 			}
 		}else{
-			printf("Error: file is not open for writing!\n");
+			printf( "Error: file is not open for writing!\n" );
 		}
 		return 1;
-	}else if(strcmp(input,"write") == 0){
+	}
+	/* WRITE */
+	else if( strcmp( input, "write" ) == 0 ){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, WRITE_ARG_NUM ))
+			return 1;
+
 		return 1;
-	}else if(strcmp(input,"exit") == 0){
-		printf("Goodbye!\n");
-		exit(1);
+	}
+	/* EXIT */
+	else if( strcmp( input,"exit" ) == 0 ){
+		printf( "Goodbye!\n" );
+		exit( 1 );
 	}else return 0;
 }
+
 int isFile(struct directory* cluster, char* input)
 {
 	int val = 0;
@@ -336,5 +454,26 @@ int isDir(struct directory* cluster, char* input)
 	return val;
 }
 
+/* 
+Determines if the number of arguments given is correct, too few, or too many.
+Returns 0 for equal, returns 1 for too few, returns 2 for too many.
+Intended to be called by: isCommand()
+ */
+int checkArgumentCount( int argNum, int numReq ){
 
+	int returnValue = 0;
 
+	if( argNum == numReq ){
+		returnValue = 0; 
+	}
+	else if( argNum < numReq ){
+		printf( "Not enough arguments. %d provied. Needed:  %d \n", argNum, numReq );
+		returnValue = 1;
+	}
+	else {
+		printf( "Too many arguments. %d provided. Needed: %d \n", argNum, numReq );
+		returnValue = 2;
+	}
+
+	return returnValue;
+}
