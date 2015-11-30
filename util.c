@@ -3,13 +3,14 @@
 #include "open.h"
 #include "cd.h"
 #include "read.h"
+#include "size.h"
+#include "write.h"
+
 /*
 #include "close.h"
 #include "rm.h"
-#include "size.h"
 #include "mkdir.h"
 #include "rmdir.h"
-#include "write.h"
 */
 
 /******************************************************************************/
