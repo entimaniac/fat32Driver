@@ -231,7 +231,7 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 
 	int dir_result = isDir( cluster, args );
 	int file_result = isFile( cluster, args );
-	int r;
+	int r,w;
 
 	/* OPEN */
 	if( strcmp( input, "open" ) == 0 ){
