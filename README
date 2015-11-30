@@ -18,16 +18,20 @@ ls.h
 open.h
 p3.c
 read.h
+size.h
 util.c
 util.h
 vactor.c
 vector.h
+write.h
 
 
 ----------------------------------------
 Completed Using:
 ----------------------------------------
 mch202-09 Machine 9 running Linux Mint
+Macbook pro OSX 10.11.1
+linprog.cs.fsu.edu
 
 
 ----------------------------------------
@@ -45,12 +49,18 @@ run
 ----------------------------------------
 Known Bugs:
 ----------------------------------------
-none
+Some commands (exit) require either an extra space or two 'enters' 
+before executing
 
 
 ----------------------------------------
 To Do
 ----------------------------------------
+close
+create
+rm
+mkdir
+rmdir
 
 
 ----------------------------------------
