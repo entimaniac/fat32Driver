@@ -288,8 +288,13 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		// check number of args:
 		if( checkArgumentCount( argumentCount, SIZE_ARG_NUM ))
 			return 1;
-
+		
 		// call size:
+		if(file_result){
+			size(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		}else{
+			printf("%s\n", "Error: Invalid file name!");
+		}
 
 		return 1;
 	}
@@ -390,6 +395,38 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		// check number of args:
 		if( checkArgumentCount( argumentCount, WRITE_ARG_NUM ))
 			return 1;
+			
+		char* file = calloc(sizeof(char),64);
+		long int start, num_bytes;
+		char *pEnd;
+		char *temp1 = calloc(sizeof(char),8);
+		char *temp2 = calloc(sizeof(char),8);
+		char *temp3 = calloc(sizeof(char),8);
+		file = strtok(args," ");
+		w = fileModeIsWriteable(file);
+		if(w == 1){
+			temp1 = strtok(NULL," ");
+			start = strtol(temp1,&pEnd,10);
+			temp2 = strtok(NULL," ");
+			num_bytes = strtol(temp2,&pEnd,10);
+			temp3 = strtok(NULL,"\n");
+			if(strlen(temp3) != num_bytes){
+				printf("Error: Bytes requested does not match string size!\n");
+				return 1;
+			}
+			if(start >= SIZE_OF_SECTOR){
+				printf("Error: attempt to read beyond EoF\n");	
+			}else{
+				printf("%s\n", file);
+				FILE *fileptr;
+				write(buffer,file,start,num_bytes,temp3,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+				fileptr = fopen("fat32.img", "wb");
+				fwrite(buffer,1,67108864,fileptr);  // this third argument needs to be replaced with a variable
+				fclose(fileptr);
+			}
+		}else{
+			printf("Error: file is not open for writing!\n");
+		}
 
 		return 1;
 	}
