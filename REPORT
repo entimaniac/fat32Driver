@@ -21,41 +21,69 @@ contribute to the project and wrap up the remaining work.
 ============================
 Assumptions
 ============================
+- ls does not require a no parameter case
+- 67MB for the image is adequate for testing and submission
 
 
 ============================
 System Calls
 ============================
-
+- Program takes place in userspace, no direct system calls used.
 
 ============================
 Problems
 ============================
+- The Thanksgiving holiday occured near the end of the project, during the time
+when the work was most underway, leading to poor communication and busy holiday 
+plans.
+- There were issues for members such as Jesse, who had to adapt to developing in
+a new way. His normal xcode development routine didn't easily allow for some 
+keywords to be overloaded.
 
 
 ============================
 Known Bugs
 ============================
+- Some commands (exit) require either an extra space or two 'enters' 
+before executing.
+- 
 
 
 ============================
 Division of Labor
 ============================
 James:
-///*** functions ***///
-///*** stuff ***///
+Tested code;
+Worked in:
+	p3.c;
+	open.h;
+	ls.h;
+	read.h
+	util.h
+	util.c
+	vector.c
+	vector.h
 
 Stefan:
-///*** functions ***///
-///*** stuff ***///
-
+Tested code;
+Worked in:
+	size.h
+	util.c
+	write.h
+	makefile
+	
 Jesse:
-///*** functions ***///
-///*** stuff ***///
+Tested code;
+Created and maintained documentation;
+Worked in:
+	util.h
+	util.c - code to prevent segmentation faults;
+
 
 ============================
 Slack Day Used
 ============================
+-tbd
 
 
 ============================
@@ -63,7 +91,7 @@ Log
 ============================
 Sun, November 29: 
 	Stefan finishes size function; begins write functionality. 
-	Jesse shares documentation.
+	Jesse shares documentation; adds code to prevent segmentation faults to util.c.
 
 Sat, November 28: 
 	James adds read functionality and fixes bugs.
