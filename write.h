@@ -83,17 +83,23 @@ void write(unsigned char* buffer, char* dir, int start, int num_bytes, unsigned 
 				num = ((int)cluster[(i/32)+1].DIR_FstClusLO[0] << 2) +
 					((int)cluster[(i/32)+1].DIR_FstClusLO[1]);
 
+				int new_size = start + num_bytes;
+
 				size = ((int)cluster[(i/32)+1].DIR_FileSize[0] *16*16*16*16*16*16) +
 					((int)cluster[(i/32)+1].DIR_FileSize[1] *16*16*16*16) +
 					((int)cluster[(i/32)+1].DIR_FileSize[2] *16*16) +
 					((int)cluster[(i/32)+1].DIR_FileSize[3]);
 
+				if(new_size > size){
+					//cluster[(i/32)+1].DIR_FileSize[i] = new_size >> (8^i)
+					for(int j = 3; j > -1; j--){
+					    int digit = new_size % 256;
+					    buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i+32+28+3-j] = digit;
+					    new_size /= 256;
+					}
+				} 
 
 				cluster[(i/32)+1].DIR_FileSize[3] = num_bytes;
-
-				//printf("%X\n", (int)cluster[(i/32)+1].DIR_FileSize[2] *16*16); 
-				//printf("%X\n", (int)cluster[(i/32)+1].DIR_FileSize[3] );
-				//printf("file size = 0x%08X\n",size);
 
 				return_val = write_file(buffer,start,num_bytes,string,size,num,FirstDataSector,
 						BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
