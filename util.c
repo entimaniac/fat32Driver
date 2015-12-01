@@ -429,11 +429,17 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 			if(start >= SIZE_OF_SECTOR){
 				printf("Error: attempt to read beyond EoF\n");	
 			}else{
-				printf("%s\n", file);
 				FILE *fileptr;
+				long filelen;
 				write(buffer,file,start,num_bytes,temp3,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+				//find the file length
+				fileptr = fopen("fat32.img", "rb");
+				fseek(fileptr, 0, SEEK_END);
+				filelen = ftell(fileptr);
+				fclose(fileptr);
+				//write to file
 				fileptr = fopen("fat32.img", "wb");
-				fwrite(buffer,1,67108864,fileptr);  // this third argument needs to be replaced with a variable
+				fwrite(buffer,1,filelen,fileptr); 
 				fclose(fileptr);
 			}
 		}else{
