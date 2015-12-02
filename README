@@ -49,9 +49,10 @@ run
 ----------------------------------------
 Known Bugs:
 ----------------------------------------
-Some commands (exit) require either an extra space or two 'enters' 
+- Some commands (exit) require either an extra space or two 'enters' 
 before executing
-
+- attempt to open file while one is already open results in seg fault.
+  case: open a rw; close; open a r; open b r . Sometimes reproducable, sometimes not
 
 ----------------------------------------
 To Do
