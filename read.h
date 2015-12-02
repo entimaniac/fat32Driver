@@ -21,7 +21,7 @@ int read_file(unsigned char* buffer, int start, int num_bytes, unsigned int size
 		ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;		
 
 		int val = 0;
-		for(int i = start; i <= start+size; i++){
+		for(int i = start; i < start+size; i++){
 			temp[0] = buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i];	
 			strncat(output,temp,1);
 			bytes_gotten++;
@@ -80,7 +80,6 @@ void read(unsigned char* buffer, char* dir, int start, int num_bytes,
 					((int)cluster[(i/32)+1].DIR_FileSize[1] *16*16*16*16) +
 					((int)cluster[(i/32)+1].DIR_FileSize[2] *16*16) +
 					((int)cluster[(i/32)+1].DIR_FileSize[3]);
-				printf("file size = 0x%08X\n",size);
 
 				return_val = read_file(buffer,start,num_bytes,size,num,FirstDataSector,
 						BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);

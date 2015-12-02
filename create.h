@@ -13,21 +13,14 @@ void shortName(unsigned char *s, char* filename)
 		if(c%2 == 1){
 			s[c] = filename[f++];
 		}
-//		else{
-//			s[c] = (unsigned char)0x0;
-//		}
 	}
 	s[c++] = (unsigned char)0x0F;
 	for( ; c <= 13; ++c){
-//		s[c] = (unsigned char)0x0;
 	}
 	for( ; c <= 31 && f < strlen(filename); ++c){
 		if(c%2 == 0){
 			s[c] = filename[f++];
 		}
-//		else{
-//			s[c] = (unsigned char)0x0;
-//		}
 	}
 }
 
@@ -51,13 +44,9 @@ void longName(unsigned char *s, char* filename, unsigned int FstClusLO)
 	//DIR_Attribute
 	s[11] = (unsigned char)0x20;
 	for( ; c <= 25; ++c){
-//		s[c++] = (unsigned char)0x0;
 	}
-	s[c++] = (((FstClusLO & 0xFF00)/16)/16); //bits 3 and 2 of value;
 	s[c++] = (FstClusLO & 0x00FF); //bits 1 and 0 of value;
-	for( ; c <= 31; ++c){
-//		s[c++] = (unsigned char(0x0;
-	}
+	s[c++] = (((FstClusLO & 0xFF00)/16)/16); //bits 3 and 2 of value;
 }
 
 int fileExists(unsigned char* buffer, char *filename, unsigned int NextClusterNumber, unsigned int FirstDataSector, 

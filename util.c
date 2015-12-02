@@ -186,6 +186,39 @@ void removeTrailingNewline(char* s)
 	    *pos = '\0';	
 }
 
+int findEmptyCluster(unsigned char* buffer, unsigned int FDS, unsigned int SPC,
+			unsigned int RSC, unsigned int BPS)
+{
+	unsigned int FirstSectorofCluster, val = 0, NCN, ThisFATSecNum, ThisFATEntOffset;
+	int n;
+	int flag = 0;
+
+	
+	//not sure how large the FAT table is???????
+	for(int i = 0x104000; i <= 67108864; i+=512)
+	{
+		for(int j = i; j <= i+512 && flag == 0; j++)
+		{
+			if(buffer[i] != (unsigned char)0){
+				flag = 1;
+			}
+		}
+		if(flag == 0){
+			NCN = ((((i/SIZE_OF_SECTOR)-FDS)/SPC)+2);
+			ThisFATSecNum = RSC + ((4*NCN) / BPS);
+			ThisFATEntOffset = (4*NCN) % BPS;
+			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+3] = 0x0F;//((NCN & 0xFF000000)/16/16/16/16/16/16);
+			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+2] = 0xFF;//((NCN & 0x00FF0000)/16/16/16/16);
+			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+1] = 0xFF;//((NCN & 0x0000FF00)/16/16);
+			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset]   = 0xF8;//((NCN & 0x000000FF));
+			return NCN;
+		}
+		flag = 0;
+	}        
+	return -1;	
+}
+
+
 unsigned int parseInput(struct directory* cluster, unsigned char* buffer, 
 		unsigned int FDS, unsigned int SPC, unsigned int RSC,
 		unsigned int BPS, char* PWD, char* command)
@@ -226,7 +259,7 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
         tempArgs = strtok( NULL, " " )) {
 			argumentCount++;   
     }
-			printf( "Number of args: %d\n", argumentCount );	
+//			printf( "Number of args: %d\n", argumentCount );	
 
 	int dir_result = isDir( cluster, args );
 	int file_result = isFile( cluster, args );
@@ -270,7 +303,9 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		// check number of args:
 		if( checkArgumentCount( argumentCount, CREATE_ARG_NUM ))
 			return 1;
-		r = create(buffer,args,0x1234,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+
+		r = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+		r = create(buffer,args,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
 		if(r > 0){
 			FILE *fileptr;
 			fileptr = fopen("fat32.img", "wb");
@@ -358,8 +393,11 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 	else if(strcmp(input,"mkdir") == 0){
 
 		// check number of args:
-		if( checkArgumentCount( argumentCount, MKDIR_ARG_NUM ))
-			return 1;
+//		if( checkArgumentCount( argumentCount, MKDIR_ARG_NUM ))
+//			return 1;
+
+		findEmptyCluster(buffer,FDS,SPC,RSC,BPS);	
+
 
 		return 1;
 	}

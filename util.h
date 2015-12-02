@@ -53,15 +53,13 @@ void getFileName( unsigned char*, unsigned char*, int );
 struct directory getDirectoryInformation( unsigned char*, int );
 unsigned int currentClusterNumber( MODE, unsigned int );
 void presentWorkingDirectory( MODE, char* );
-void getCluster( struct directory*, unsigned char*, unsigned int, unsigned int,
-	unsigned int, unsigned int, unsigned int);
+void getCluster( struct directory*, unsigned char*, unsigned int, unsigned int,unsigned int, unsigned int, unsigned int);
 
 void removeTrailingNewline( char* );
+int findEmptyCluster(unsigned char*,unsigned int, unsigned int,unsigned int, unsigned int);
 
-unsigned int parseInput( struct directory*, unsigned char*, unsigned int, 
-	unsigned int, unsigned int, unsigned int, char*, char* );
-int isCommand( struct directory*, unsigned char*, unsigned int, unsigned int,
-	unsigned int, unsigned int, char*, char* );
+unsigned int parseInput( struct directory*, unsigned char*, unsigned int, unsigned int, unsigned int, unsigned int, char*, char* );
+int isCommand( struct directory*, unsigned char*, unsigned int, unsigned int,unsigned int, unsigned int, char*, char* );
 int isFile( struct directory*, char* );
 int isDir( struct directory*, char* );
 int checkArgumentCount ( int argNum, int numReq );
