@@ -6,8 +6,8 @@
 #include "size.h"
 #include "write.h"
 #include "create.h"
-/*
 #include "rm.h"
+/*
 #include "mkdir.h"
 #include "rmdir.h"
 */
@@ -321,11 +321,21 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 	}
 	/* RM */
 	else if(strcmp(input,"rm") == 0){
-
 		// check number of args:
 		if( checkArgumentCount( argumentCount, RM_ARG_NUM ))
 			return 1;
 
+		r = rm(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		if(r == 1){
+			FILE *fileptr;
+			fileptr = fopen("fat32.img", "wb");
+			fwrite(buffer,1,67108864,fileptr); 
+			fclose(fileptr);
+		}else if(r == 0){
+			printf("error: does not exist\n");
+		}else{
+			printf("error: not a file\n"); 
+		}
 		return 1;
 	}
 	/* SIZE */
