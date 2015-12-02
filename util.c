@@ -7,9 +7,9 @@
 #include "write.h"
 #include "create.h"
 #include "rm.h"
+#include "rmdir.h"
 /*
 #include "mkdir.h"
-#include "rmdir.h"
 */
 
 /******************************************************************************/
@@ -319,6 +319,29 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 
 		return 1;
 	}
+	/* RMDIR */
+	else if(strcmp(input,"rmdir") == 0){
+
+		// check number of args:
+		if( checkArgumentCount( argumentCount, RMDIR_ARG_NUM ))
+			return 1;
+	
+		r = rmdir(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		if(r == 1){
+			FILE *fileptr;
+			fileptr = fopen("fat32.img", "wb");
+			fwrite(buffer,1,67108864,fileptr); 
+			fclose(fileptr);
+		}else if(r == 0){
+			printf("error: does not exist\n");
+		}else if(r == -1){
+			printf("error: not a directory\n"); 
+		}else{
+			printf("error: directory not empty\n");
+		}
+
+		return 1;
+	}
 	/* RM */
 	else if(strcmp(input,"rm") == 0){
 		// check number of args:
@@ -327,6 +350,7 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 
 		r = rm(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
 		if(r == 1){
+			close_without_check(args);
 			FILE *fileptr;
 			fileptr = fopen("fat32.img", "wb");
 			fwrite(buffer,1,67108864,fileptr); 
@@ -408,15 +432,6 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 
 		findEmptyCluster(buffer,FDS,SPC,RSC,BPS);	
 
-
-		return 1;
-	}
-	/* RMDIR */
-	else if(strcmp(input,"rmdir") == 0){
-
-		// check number of args:
-		if( checkArgumentCount( argumentCount, RMDIR_ARG_NUM ))
-			return 1;
 
 		return 1;
 	}

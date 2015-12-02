@@ -41,6 +41,16 @@ void close(char* filename)
 	printf("Error: file not open\n");
 }
 
+void close_without_check(char * filename)
+{
+	for(int i = 0; i < vector_get_size(&open_file_table); i++){
+		if(strcmp(filename,vector_get(&open_file_table,i)) == 0){
+			vector_remove(&open_file_table,filename);	
+			return;
+		}
+	}
+}
+
 int fileModeIsReadable(char *filename)
 {
 	printf("fileModeIsReadable => %s\n",filename);
