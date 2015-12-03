@@ -8,20 +8,23 @@ Member 3: Stefan Ollestad
 ----------------------------------------
 project3_Strode_Sumlin_Ollestad.tar Contents:
 ----------------------------------------
-README.txt
-REPORT.txt
-
-makefile
-
+README
+REPORT
 cd.h
+create.h
 ls.h
+makefile
 open.h
 p3.c
 read.h
+rm.h
+rmdir.h
 size.h
+stack.c
+stack.h
 util.c
 util.h
-vactor.c
+vector.c
 vector.h
 write.h
 
@@ -54,13 +57,12 @@ before executing
 - attempt to open file while one is already open results in seg fault.
   case: open a rw; close; open a r; open b r . Sometimes reproducable, sometimes not
 
+
 ----------------------------------------
 To Do
 ----------------------------------------
-create
-rm
+fix bugs
 mkdir
-rmdir
 
 
 ----------------------------------------
