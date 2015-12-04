@@ -192,6 +192,7 @@ int findEmptyCluster(unsigned char* buffer, unsigned int FDS, unsigned int SPC,
 	unsigned int FirstSectorofCluster, val = 0, NCN, ThisFATSecNum, ThisFATEntOffset;
 	int n;
 	int flag = 0;
+	unsigned char zero = (unsigned char)0x00;
 
 	
 	//not sure how large the FAT table is???????
@@ -207,14 +208,17 @@ int findEmptyCluster(unsigned char* buffer, unsigned int FDS, unsigned int SPC,
 			NCN = ((((i/SIZE_OF_SECTOR)-FDS)/SPC)+2);
 			ThisFATSecNum = RSC + ((4*NCN) / BPS);
 			ThisFATEntOffset = (4*NCN) % BPS;
-			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+3] = 0x0F;//((NCN & 0xFF000000)/16/16/16/16/16/16);
-			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+2] = 0xFF;//((NCN & 0x00FF0000)/16/16/16/16);
-			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset+1] = 0xFF;//((NCN & 0x0000FF00)/16/16);
-			buffer[ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset]   = 0xF8;//((NCN & 0x000000FF));
-			return NCN;
+			n = ThisFATSecNum*SIZE_OF_SECTOR+ThisFATEntOffset;
+			if(buffer[n] == zero && buffer[n+1] == zero && buffer[n+2] == zero && buffer[n+3] == zero){
+				buffer[n+3] = 0x0F;
+				buffer[n+2] = 0xFF;
+				buffer[n+1] = 0xFF;
+				buffer[n]   = 0xF8;
+				return NCN;
+			}//else keep looking
 		}
 		flag = 0;
-	}        
+	}       
 	return -1;	
 }
 
@@ -304,19 +308,46 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		if( checkArgumentCount( argumentCount, CREATE_ARG_NUM ))
 			return 1;
 
-		r = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
-		r = create(buffer,args,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
-		if(r > 0){
-			FILE *fileptr;
-			fileptr = fopen("fat32.img", "wb");
-			fwrite(buffer,1,67108864,fileptr); 
-			fclose(fileptr);
-		}else if(r == 0){
+		if(fileExists(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS) == 1){
 			printf("error: File already exists\n");
-		}else if(r == -1){
-			printf("error: Out of useable space!\n");
+			return 1;
+		}	
+		r = checkIfClusterIsFull(buffer,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		if(r == 1){
+			//cluster is full, allocate new space
+			//get space for new link in cluster chain	
+			r = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			//extend the cluster chain using the new link
+			extendClusterChain(buffer,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);		
+			//get space for the new file being created	
+			r = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			//create new file
+			r = create(buffer,args,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);		
+			if(r > 0){
+				FILE *fileptr;
+				fileptr = fopen("fat32.img", "wb");
+				fwrite(buffer,1,67108864,fileptr); 
+				fclose(fileptr);
+			}else if(r == 0){
+				printf("error: File already exists\n");
+			}else if(r < 0){
+				printf("error: out of useable space!\n");
+			}
+		}else{
+			//cluster has room, put new file in that space
+			r = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			r = create(buffer,args,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+			if(r > 0){
+				FILE *fileptr;
+				fileptr = fopen("fat32.img", "wb");
+				fwrite(buffer,1,67108864,fileptr); 
+				fclose(fileptr);
+			}else if(r == 0){
+				printf("error: File already exists\n");
+			}else if(r < 0){
+				printf("error: out of useable space!\n");
+			}
 		}
-
 		return 1;
 	}
 	/* RMDIR */
