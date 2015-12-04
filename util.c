@@ -8,9 +8,7 @@
 #include "create.h"
 #include "rm.h"
 #include "rmdir.h"
-/*
 #include "mkdir.h"
-*/
 
 /******************************************************************************/
 /*                      DEFINED CONSTANTS */
@@ -307,7 +305,7 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		// check number of args:
 		if( checkArgumentCount( argumentCount, CREATE_ARG_NUM ))
 			return 1;
-
+		
 		if(fileExists(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS) == 1){
 			printf("error: File already exists\n");
 			return 1;
@@ -349,6 +347,7 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 			}
 		}
 		return 1;
+
 	}
 	/* RMDIR */
 	else if(strcmp(input,"rmdir") == 0){
@@ -456,14 +455,54 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 	}
 	/* MKDIR */
 	else if(strcmp(input,"mkdir") == 0){
-
+			int datacnum, dotcnum;
 		// check number of args:
-//		if( checkArgumentCount( argumentCount, MKDIR_ARG_NUM ))
-//			return 1;
-
-		findEmptyCluster(buffer,FDS,SPC,RSC,BPS);	
-
-
+		if( checkArgumentCount( argumentCount, MKDIR_ARG_NUM ))
+			return 1;
+		
+		if(fileExists(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS) == 1){
+			printf("error: directory already exists\n");
+			return 1;
+		}	
+		r = checkIfClusterIsFull(buffer,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
+		if(r == 1){
+			//cluster is full, allocate new space
+			//get space for new link in cluster chain	
+			dotcnum = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			//extend the cluster chain using the new link
+			extendClusterChain(buffer,dotcnum,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);		
+			//get space for the new dir being created	
+			datacnum = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			//create new directory
+			r = mkdir(buffer,args,r,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);	
+			if(r > 0){
+				makeDotDirectories(buffer,(datacnum-2)*SPC+FDS,dotcnum,currentClusterNumber(GET,0));
+				FILE *fileptr;
+				fileptr = fopen("fat32.img", "wb");
+				fwrite(buffer,1,67108864,fileptr); 
+				fclose(fileptr);
+			}else if(r == 0){
+				printf("error: directory already exists\n");
+			}else if(r < 0){
+				printf("error: out of useable space!\n");
+			}
+		}else{
+			//cluster has room, put new file in that space
+			datacnum = findEmptyCluster(buffer,FDS,SPC,RSC,BPS);
+			r = mkdir(buffer,args,datacnum,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);		
+			if(r > 0){
+				makeDotDirectories(buffer,(datacnum-2)*SPC+FDS,datacnum,currentClusterNumber(GET,0));
+				FILE *fileptr;
+				fileptr = fopen("fat32.img", "wb");
+				fwrite(buffer,1,67108864,fileptr); 
+				fclose(fileptr);
+			}else if(r == 0){
+				printf("error: directory already exists\n");
+			}else if(r < 0){
+				printf("error: out of useable space!\n");
+			}
+		}
+	
 		return 1;
 	}
 	/* READ */
