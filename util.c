@@ -604,8 +604,8 @@ int isDir(struct directory* cluster, char* input)
 }
 
 /* 
-Determines if the number of arguments given is correct, too few, or too many.
-Returns 0 for equal, returns 1 for too few, returns 2 for too many.
+Determines if the number of arguments given is correct.
+Returns 0 for equal or returns 1 for too few.
 Intended to be called by: isCommand()
  */
 int checkArgumentCount( int argNum, int numReq ){
@@ -618,10 +618,6 @@ int checkArgumentCount( int argNum, int numReq ){
 	else if( argNum < numReq ){
 		printf( "Not enough arguments. %d provied. Needed:  %d \n", argNum, numReq );
 		returnValue = 1;
-	}
-	else {
-		printf( "Too many arguments. %d provided. Needed: %d \n", argNum, numReq );
-		returnValue = 2;
 	}
 
 	return returnValue;

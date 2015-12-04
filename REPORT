@@ -55,10 +55,16 @@ Division of Labor
 James:
 Tested code;
 Worked in:
-	p3.c;
-	open.h;
+	cd.h
+	create.h
 	ls.h;
+	open.h;
+	p3.c;
 	read.h
+	rm.h
+	rmdir.h
+	stack.c
+	stack.h
 	util.h
 	util.c
 	vector.c
@@ -67,28 +73,44 @@ Worked in:
 Stefan:
 Tested code;
 Worked in:
+	makefile
 	size.h
 	util.c
 	write.h
-	makefile
 	
 Jesse:
 Tested code;
 Created and maintained documentation;
 Worked in:
+	README
+	REPORT
 	util.h
-	util.c - code to prevent segmentation faults;
+	util.c
 
 
 ============================
 Slack Day Used
 ============================
--tbd
+James:	2 days
+Stefan:	2 days
+Jesse:	2 days
 
 
 ============================
 Log
 ============================
+Wed, December 2:
+	James adds rmdir funtion. 
+	Jesse updats documentation.
+
+Tue, December 1:
+	James updates create to work better;  adds rm functionality.
+	Jesse runs series of tests and reports bug; updates documentation.
+
+Mon, November 30: 
+	Stefan updates Util.c to work with size function; adds work to write functionality.
+	James adds create funtionality.
+	
 Sun, November 29: 
 	Stefan finishes size function; begins write functionality. 
 	Jesse shares documentation; adds code to prevent segmentation faults to util.c.
