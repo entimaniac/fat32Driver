@@ -4,7 +4,7 @@
 void makeDotDirectories(unsigned char* buffer, unsigned int start, 
 			unsigned int DotClusterNumber, unsigned int DotDotClusterNumber)
 {
-	printf("making dot directories at 0x%X\n",start*SIZE_OF_SECTOR);
+	//printf("making dot directories at 0x%X\n",start*SIZE_OF_SECTOR);
 	//DOT
 	int n = start*SIZE_OF_SECTOR;
 	buffer[n++] = (unsigned char)0x2E;
@@ -50,7 +50,7 @@ void shortDirName(unsigned char *s, char* filename)
 			s[c] = filename[f++];
 		}
 	}
-	printf("about to assign short attr c = %d\n",c);	
+	//printf("about to assign short attr c = %d\n",c);	
 	s[c++] = (unsigned char)0x00;
 	for( ; c <= 13; ++c){
 	}
@@ -79,7 +79,7 @@ void longDirName(unsigned char *s, char* filename, unsigned int FstClusLO)
 		}
 	}
 	//DIR_Attribute
-	printf("about to assign long attr c = %d\n",c);	
+	//printf("about to assign long attr c = %d\n",c);	
 	s[11] = (unsigned char)0x10;
 	c = 12;
 	for( ; c <= 25; ++c){
