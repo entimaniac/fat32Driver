@@ -51,6 +51,7 @@ before executing
 - opening a file that shares the same name of another file prevents "opening" of
 that other file, however, both can be written to and read from if opened in 
 either mode.
+- writing to file with starting position other than 0 results in error
 
 
 
