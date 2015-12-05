@@ -105,9 +105,24 @@ Jesse:	2 days
 ============================
 Log
 ============================
+Sat, December 5:
+	Jesse finalizes documentations.
+	Stefan works one final bug.
+	Project submitted. 
+	
+Fri, December 4:
+	James adds mkdir functionality.
+	Jesse fixes a bug preventing expected functionality.
+
+
+Thu, December 3:
+	James finalizes create functionality.
+	Jesse fixes a minor bug in util.c; updates documentation.
+
+
 Wed, December 2:
 	James adds rmdir funtion. 
-	Jesse updats documentation.
+	Jesse updates documentation.
 
 Tue, December 1:
 	James updates create to work better;  adds rm functionality.
