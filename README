@@ -64,6 +64,7 @@ opened in the appropriate mode.
 - cannot write leading spaces
 - cannot create a file with the same name as a directory if it already exists in
 the same folder and vise versa
+- rmdir never sees dir as empty and therefor cannot remove any directories
 
 
 ----------------------------------------
