@@ -279,12 +279,8 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		ptr = strtok( args, " " );
 		mode = strtok( NULL, " " );
 
-		if( isFile( cluster, ptr )){
-			open( args, mode );
-		} else{
-			printf( "Error: File does not exist!\n" );	
-		}
-		//free?
+		open( args, mode );
+	
 		return 1;
 
 	}
@@ -399,12 +395,9 @@ int isCommand( struct directory* cluster, unsigned char* buffer,
 		if( checkArgumentCount( argumentCount, SIZE_ARG_NUM ))
 			return 1;
 		
-		// call size:
-		if(file_result){
+
 			size(buffer,args,currentClusterNumber(GET,0),FDS,SPC,RSC,BPS);
-		}else{
-			printf("%s\n", "Error: Invalid file name!");
-		}
+
 
 		return 1;
 	}

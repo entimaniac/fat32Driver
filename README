@@ -54,8 +54,11 @@ Known Bugs:
 ----------------------------------------
 - Some commands (exit) require either an extra space or two 'enters' 
 before executing
-- attempt to open file while one is already open results in seg fault.
-  case: open a rw; close; open a r; open b r . Sometimes reproducable, sometimes not
+- can "open" files that do not exist
+-- can "read" and "write" to these files; effects undefined
+- opening a file that shares the same name of another file prevents "opening" of
+that other file, however, both can be written to and read from if opened in 
+either mode.
 
 
 ----------------------------------------
@@ -68,3 +71,8 @@ mkdir
 ----------------------------------------
 Additional Comments:
 ----------------------------------------
+In order to get around lingering bugs that prevented accessing files outside of
+current sector, some checks were removed. This leads to the ability to access
+"files" that don't exist. It is assumed that if some form of error checking or
+messaging was not in project write-up, it will not be tested for, i.e., tester
+will use only valid filenames.
