@@ -62,13 +62,14 @@ that other file, however, both can be written to and read from if just one is
 opened in the appropriate mode.
 - writing to file with starting position other than 0 results in error
 - cannot write leading spaces
+- cannot create a file with the same name as a directory if it already exists in
+the same folder and vise versa
 
 
 ----------------------------------------
 To Do
 ----------------------------------------
 fix bugs
-mkdir
 
 
 ----------------------------------------
