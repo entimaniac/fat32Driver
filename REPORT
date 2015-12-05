@@ -36,9 +36,8 @@ Problems
 - The Thanksgiving holiday occured near the end of the project, during the time
 when the work was most underway, leading to poor communication and busy holiday 
 plans.
-- There were issues for members such as Jesse, who had to adapt to developing in
-a new way. His normal xcode development routine didn't easily allow for some 
-keywords to be overloaded.
+- The project was heavily developed by a single member in the beginning, so the
+other members had to catch up to speed after the fact.
 
 
 ============================
@@ -64,6 +63,7 @@ Worked in:
 	cd.h
 	create.h
 	ls.h;
+	mkdir
 	open.h;
 	p3.c;
 	read.h
@@ -90,6 +90,7 @@ Created and maintained documentation;
 Worked in:
 	README
 	REPORT
+	open.h
 	util.h
 	util.c
 
