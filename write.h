@@ -20,19 +20,16 @@ int write_file(unsigned char* buffer, int start, int num_bytes, unsigned char* s
 		ThisFATSecNum = BPB_ResvdSecCnt + ((4*NextClusterNumber) / BPB_BytsPerSec);
 		ThisFATEntOffset = (4*NextClusterNumber) % BPB_BytsPerSec;		
 
-
+		//printf("%d\n", start);
+		//printf("%d\n", num_bytes);
 
 		int val = 0;
-		for(int i = start; i < start+num_bytes; i++){
-			buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i] = string[i];
-			temp[0] = buffer[FirstSectorofCluster*SIZE_OF_SECTOR+i];
-			//printf("%s\n", temp[0]);
-			if(temp[0] != 0x0){
-				strncat(output,temp,1);
-				bytes_gotten++;
-			}else{
-				return 0;
-			}
+		for(int i = start; i < (start+num_bytes); i++){
+			buffer[(FirstSectorofCluster*SIZE_OF_SECTOR)+i] = string[i-start];
+			printf("%c\n", buffer[(FirstSectorofCluster*SIZE_OF_SECTOR)+i]);
+			temp[0] = buffer[(FirstSectorofCluster*SIZE_OF_SECTOR)+i];
+			strncat(output,temp,1);
+			bytes_gotten++;
 		}
 
 		//printf("%d\n", bytes_gotten );
@@ -104,7 +101,7 @@ void write(unsigned char* buffer, char* dir, int start, int num_bytes, unsigned 
 				return_val = write_file(buffer,start,num_bytes,string,size,num,FirstDataSector,
 						BPB_SecPerClus,BPB_ResvdSecCnt,BPB_BytsPerSec);
 				if(return_val == 0){
-					printf("Error: attempt to read beyond EoF\n");
+					//printf("Error: attempt to read beyond EoF\n");
 				}
 				return;
 			}
