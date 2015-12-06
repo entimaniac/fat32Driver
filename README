@@ -60,11 +60,11 @@ before executing
 - opening a file that shares the same name of another file prevents "opening" of
 that other file, however, both can be written to and read from if just one is
 opened in the appropriate mode.
-- writing to file with starting position other than 0 results in error
 - cannot write leading spaces
 - cannot create a file with the same name as a directory if it already exists in
 the same folder and vise versa
-- rmdir never sees dir as empty and therefor cannot remove any directories
+- rmdir never sees dir as empty due to oversight in error checking and therefore
+it will not remove any directories
 
 
 ----------------------------------------
